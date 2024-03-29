@@ -40,8 +40,19 @@ def baidu_ocr_handwriting(api_key, secret_key, image_path):
     if "words_result" in result:
         for word_info in result["words_result"]:
             print(word_info["words"])
+            output2txt(word_info["words"])
     else:
         print("OCR failed.")
+
+
+def output2txt(words):
+    # 打开文件，如果文件不存在则创建它，使用追加写入模式（'a'）
+    #指定utf-8编码, 防止默认的GBK无法编译
+    file_path = R'C:\Users\zxb29\Desktop\OCR Photo\output.md'
+    with open(file_path, 'a', encoding='utf-8') as f:
+        # 写入文本到文件
+        f.write(F'{words}')  
+
 
 if __name__ == "__main__":
     # 替换成你在百度开发者平台创建应用获得的 API Key 和 Secret Key
@@ -50,6 +61,7 @@ if __name__ == "__main__":
 
     # 替换成你要识别的图片路径
     image_path = "C:\\Users\\zxb29\\Desktop\\图片\\_20240213222517.jpg"
+    #image_path = R"C:\Users\zxb29\Desktop\OCR Photo\IMG_9001.JPG"
 
     # 验证文件是否存在
     if os.path.isfile(image_path):

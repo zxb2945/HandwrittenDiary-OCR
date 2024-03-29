@@ -3,8 +3,9 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from PyQt5.QtCore import QUrl
 from PyQt5.QtQml import QQmlApplicationEngine
 from PyQt5.QtCore import QObject, pyqtSlot
+from baiduOCR import baidu_ocr_handwriting
 
-# 继承自 QObject，这使得它能够作为 PyQt 的信号槽对象。
+# 继承自 QObject，这使得它能够作为 PyQt QML的信号槽对象。
 class Backend(QObject):
     def __init__(self):
         super().__init__()
@@ -31,6 +32,9 @@ class Backend(QObject):
     def transfer_data(self):
         # 在这里添加百度OCR接口的逻辑
         print("Transfer Button Clicked")
+        api_key = ""
+        secret_key = ""
+        baidu_ocr_handwriting(api_key, secret_key, self.file_path)
 
 
 if __name__ == "__main__":
@@ -48,6 +52,7 @@ if __name__ == "__main__":
     engine.load(QUrl.fromLocalFile("src/windows.qml"))
 
     if not engine.rootObjects():
-        sys.exit(-1)
+        sys.exit(-1) 
 
     sys.exit(app.exec_())
+
