@@ -154,5 +154,4 @@ cython_debug/
 
 
 #补充
-test.py
-test.qml
+output/*

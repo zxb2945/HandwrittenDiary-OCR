@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from PyQt5.QtCore import QUrl
 from PyQt5.QtQml import QQmlApplicationEngine
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
-from baiduOCR import baidu_ocr_handwriting
+#引入baiduOCR中特定函数，本文件中直接调用
+#from baiduOCR import baidu_ocr_handwriting
+#引入baiduOCR所有函数，函数名前加"baiduOCR."调用
+import baiduOCR
 
 # 继承自 QObject，这使得它能够作为 PyQt QML的信号槽对象。
 #在Qt框架中，信号槽（Signal-Slot）是其重要的编程机制之一，用于实现事件驱动
@@ -29,7 +32,8 @@ class Backend(QObject):
         # 实现打开文件对话框的逻辑
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
-        self.file_path, _ = QFileDialog.getOpenFileName(None, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
+        #self.file_path, _ = QFileDialog.getOpenFileName(None, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
+        self.file_path = QFileDialog.getExistingDirectory(None, "Choose Folder", "", options=options)
         print("Selected File:", self.file_path)
 
     @pyqtSlot()
@@ -37,35 +41,16 @@ class Backend(QObject):
         # 在这里添加百度OCR接口的逻辑
         print("Transfer Button Clicked")
 
-        api_key = None
-        secret_key = None
-
-        configfile_path = R'config/BaiduOCRKey.txt'
-        try:
-            with open(configfile_path, 'r') as file:
-                #content = file.read()
-                for line in file:
-                    if line.startswith('api_key:'):
-                        # 获取目标字段后面的内容并去除首尾空格
-                        api_key = line[len('api_key:'):].strip()
-                        print(f"匹配到api_key，值为: {api_key}")                    
-                    if line.startswith('secret_key:'):
-                        # 获取目标字段后面的内容并去除首尾空格
-                        secret_key = line[len('secret_key:'):].strip()
-                        print(f"匹配到secret_key，值为: {secret_key}")                     
-                #print(content)
-        except FileNotFoundError:
-            print(f"文件 '{configfile_path}' 不存在。")
-        except IOError:
-            print(f"无法读取文件 '{configfile_path}'。")
-
+        #python天然支持返回多个值
+        api_key, secret_key = baiduOCR.inputConfig()    
 
         if api_key == None or secret_key == None:
             #出发对话框pop
             self.showDialog.emit()
         else:
-            print("Call baidu ocr")
-            #baidu_ocr_handwriting(api_key, secret_key, self.file_path)
+            print(f"Call baidu ocr, {self.file_path}")
+            baiduOCR.inputAllIMG2OCR(api_key, secret_key, self.file_path)
+            #baiduOCR.baidu_ocr_handwriting(api_key, secret_key, self.file_path)
 
 
 if __name__ == "__main__":

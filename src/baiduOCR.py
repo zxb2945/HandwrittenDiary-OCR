@@ -45,10 +45,48 @@ def baidu_ocr_handwriting(api_key, secret_key, image_path):
         print("OCR failed.")
 
 
+def inputAllIMG2OCR(api_key, secret_key, folder_path):
+    # 定义图片文件的扩展名
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
+
+    # 遍历文件夹下的所有文件
+    for filename in os.listdir(folder_path):
+        # 获取文件的完整路径
+        file_path = os.path.join(folder_path, filename)
+        # 检查文件是否是图片文件
+        if os.path.isfile(file_path) and any(filename.lower().endswith(ext) for ext in image_extensions):
+            # 处理图片文件，这里可以加入你的逻辑
+            print("Found image file:", file_path) 
+        baidu_ocr_handwriting(api_key, secret_key, file_path)       
+
+def inputConfig():
+    api_key = None
+    secret_key = None
+
+    configfile_path = R'config/BaiduOCRKey.txt'
+    try:
+        with open(configfile_path, 'r') as file:
+            #content = file.read()
+            for line in file:
+                if line.startswith('api_key:'):
+                    # 获取目标字段后面的内容并去除首尾空格
+                    api_key = line[len('api_key:'):].strip()
+                    print(f"匹配到api_key，值为: {api_key}")                    
+                if line.startswith('secret_key:'):
+                    # 获取目标字段后面的内容并去除首尾空格
+                    secret_key = line[len('secret_key:'):].strip()
+                    print(f"匹配到secret_key，值为: {secret_key}")                     
+    except FileNotFoundError:
+        print(f"文件 '{configfile_path}' 不存在。")
+    except IOError:
+        print(f"无法读取文件 '{configfile_path}'。")
+
+    return api_key, secret_key
+
 def output2txt(words):
     # 打开文件，如果文件不存在则创建它，使用追加写入模式（'a'）
     #指定utf-8编码, 防止默认的GBK无法编译
-    file_path = R'C:\Users\zxb29\Desktop\OCR Photo\output.md'
+    file_path = R'output/result.md'
     with open(file_path, 'a', encoding='utf-8') as f:
         # 写入文本到文件
         f.write(F'{words}')  
@@ -56,8 +94,7 @@ def output2txt(words):
 
 if __name__ == "__main__":
     # 替换成你在百度开发者平台创建应用获得的 API Key 和 Secret Key
-    api_key = ""
-    secret_key = ""
+    api_key, secret_key = inputConfig() 
 
     # 替换成你要识别的图片路径
     image_path = "C:\\Users\\zxb29\\Desktop\\图片\\_20240213222517.jpg"
@@ -68,6 +105,5 @@ if __name__ == "__main__":
         print(f"文件 '{image_path}' 存在.")
     else:
         print(f"文件 '{image_path}' 不存在.")
-
 
     baidu_ocr_handwriting(api_key, secret_key, image_path)
