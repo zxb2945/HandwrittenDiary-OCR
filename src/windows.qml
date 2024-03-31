@@ -68,4 +68,27 @@ ApplicationWindow {
             // Add other elements as needed
         }
     }
+
+    Dialog {
+        id: dialog
+        title: "Message"
+        standardButtons: Dialog.Ok
+
+        Column {
+            Text {
+                text: "请正确配置百度OCR的Key"
+                horizontalAlignment: Text.AlignHCenter
+            }
+        }
+
+        //建立信号和槽之间的连接,Connections
+        Connections {
+            // 目标是发射信号的对象，即Backend实例
+            target: backend
+            // 当showDialog信号触发时，打开对话框
+            onShowDialog: dialog.open()
+        }     
+    }
+
+
 }

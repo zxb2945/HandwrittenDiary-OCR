@@ -2,11 +2,15 @@ import sys
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from PyQt5.QtCore import QUrl
 from PyQt5.QtQml import QQmlApplicationEngine
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from baiduOCR import baidu_ocr_handwriting
 
 # 继承自 QObject，这使得它能够作为 PyQt QML的信号槽对象。
+#在Qt框架中，信号槽（Signal-Slot）是其重要的编程机制之一，用于实现事件驱动
 class Backend(QObject):
+    #定义showDialog信号，与QML中的onShowDialog关联
+    showDialog = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self._file_path = ""
@@ -32,9 +36,36 @@ class Backend(QObject):
     def transfer_data(self):
         # 在这里添加百度OCR接口的逻辑
         print("Transfer Button Clicked")
-        api_key = ""
-        secret_key = ""
-        baidu_ocr_handwriting(api_key, secret_key, self.file_path)
+
+        api_key = None
+        secret_key = None
+
+        configfile_path = R'config/BaiduOCRKey.txt'
+        try:
+            with open(configfile_path, 'r') as file:
+                #content = file.read()
+                for line in file:
+                    if line.startswith('api_key:'):
+                        # 获取目标字段后面的内容并去除首尾空格
+                        api_key = line[len('api_key:'):].strip()
+                        print(f"匹配到api_key，值为: {api_key}")                    
+                    if line.startswith('secret_key:'):
+                        # 获取目标字段后面的内容并去除首尾空格
+                        secret_key = line[len('secret_key:'):].strip()
+                        print(f"匹配到secret_key，值为: {secret_key}")                     
+                #print(content)
+        except FileNotFoundError:
+            print(f"文件 '{configfile_path}' 不存在。")
+        except IOError:
+            print(f"无法读取文件 '{configfile_path}'。")
+
+
+        if api_key == None or secret_key == None:
+            #出发对话框pop
+            self.showDialog.emit()
+        else:
+            print("Call baidu ocr")
+            #baidu_ocr_handwriting(api_key, secret_key, self.file_path)
 
 
 if __name__ == "__main__":
