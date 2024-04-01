@@ -29,7 +29,20 @@ ApplicationWindow {
                 Layout.rightMargin: 10
                 Layout.bottomMargin: 10
                 placeholderText: "File Path"
-                onEditingFinished: backend.file_path = text
+                // 绑定 TextField 的 text 属性到 backend.file_path
+                text: backend.file_path
+
+                //3.接收后端发送过来的path变化信号
+                Connections {
+                    target: backend
+                    onFile_path_changed: {
+                        //QML中打印debug信息
+                        console.log("Received file path:", backend.file_path)
+                        //不知道为什么windows.qml中取不到backend.file_path，却可以调用backend.open_file_dialog()？？
+                        //原因：因为file_path没有被设置为@pyqtProperty(str)！！！既要被QML引用必须是专用的属性
+                        filePathInput.text = backend.file_path;
+                    }
+                }                                                      
             }
 
             Button {
