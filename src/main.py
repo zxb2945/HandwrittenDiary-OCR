@@ -8,6 +8,9 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 #引入baiduOCR所有函数，函数名前加"baiduOCR."调用
 import baiduOCR
 from PyQt5.QtCore import pyqtProperty
+import logging
+import os
+
 
 # 继承自 QObject，这使得它能够作为 PyQt QML的信号槽对象。
 #在Qt框架中，信号槽（Signal-Slot）是其重要的编程机制之一，用于实现事件驱动
@@ -40,12 +43,12 @@ class Backend(QObject):
         options |= QFileDialog.ReadOnly
         #self.file_path, _ = QFileDialog.getOpenFileName(None, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
         self.file_path = QFileDialog.getExistingDirectory(None, "Choose Folder", "", options=options)
-        print("Selected File:", self.file_path)
+        logging.info("Selected File:", self.file_path)
 
     @pyqtSlot()
     def transfer_data(self):
         # 在这里添加百度OCR接口的逻辑
-        print("Transfer Button Clicked")
+        logging.info("Transfer Button Clicked")
 
         #python天然支持返回多个值
         api_key, secret_key = baiduOCR.inputConfig()    
@@ -54,12 +57,30 @@ class Backend(QObject):
             #触发对话框pop
             self.showDialog.emit()
         else:
-            print(f"Call baidu ocr, {self.file_path}")
+            logging.info(f"Call baidu ocr, {self.file_path}")
             baiduOCR.inputAllIMG2OCR(api_key, secret_key, self.file_path)
             #baiduOCR.baidu_ocr_handwriting(api_key, secret_key, self.file_path)
 
+#只需要在当前py文件中配置一次日志记录器，对当前文件所调用的其它py文件中同样有效
+def setLogging():
+     # 指定日志文件路径
+    log_file_path = R'output/app.log'
+    # 检查文件是否存在
+    if os.path.exists(log_file_path):
+        # 如果文件存在，则删除它
+        os.remove(log_file_path)    
+    # 配置日志记录器
+    logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')  
+
+    # 打印日志消息
+    logging.info('日志记录开始')
+    # logging.warning('这是一个警告日志消息')
+    # logging.error('这是一个错误日志消息') 
+
 
 if __name__ == "__main__":
+    setLogging()
+
     app = QApplication(sys.argv)
 
     backend = Backend()

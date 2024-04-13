@@ -1,6 +1,7 @@
 import os
 import requests
 from base64 import b64encode
+import logging
 
 def baidu_ocr_handwriting(api_key, secret_key, image_path):
     # 获取访问令牌
@@ -57,11 +58,15 @@ def inputAllIMG2OCR(api_key, secret_key, folder_path):
         if os.path.isfile(file_path) and any(filename.lower().endswith(ext) for ext in image_extensions):
             # 处理图片文件，这里可以加入你的逻辑
             print("Found image file:", file_path) 
+            logging.info("Found image file:", file_path)
         baidu_ocr_handwriting(api_key, secret_key, file_path)  
 
     print("=====================") 
-    print("所有图片都处理完了！")  
+    print("所有图片都处理完了！") 
     print("=====================")    
+    logging.info("=====================")
+    logging.info("所有图片都处理完了！")
+    logging.info("=====================")   
 
 def inputConfig():
     api_key = None
