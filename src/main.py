@@ -79,6 +79,7 @@ def setLogging():
 
 
 if __name__ == "__main__":
+
     setLogging()
 
     app = QApplication(sys.argv)
@@ -88,14 +89,18 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
 
     # 将 backend 注册为 QML 上下文中的对象
+    logging.info('将 backend 注册为 QML 上下文中的对象')
     context = engine.rootContext()
     context.setContextProperty("backend", backend)
 
     # 加载 QML 文件
+    logging.info('加载 QML 文件')
     engine.load(QUrl.fromLocalFile("src/windows.qml"))
 
     if not engine.rootObjects():
+        logging.info('if not engine.rootObjects()')
         sys.exit(-1) 
 
     sys.exit(app.exec_())
+
 
