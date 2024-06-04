@@ -11,6 +11,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Run tests
+      run: echo "Start!!!"  
+
+    - name: Clear cache  # 将清除缓存步骤放在安装依赖项之前
+      run: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
