@@ -43,7 +43,8 @@ class Backend(QObject):
         options |= QFileDialog.ReadOnly
         #self.file_path, _ = QFileDialog.getOpenFileName(None, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
         self.file_path = QFileDialog.getExistingDirectory(None, "Choose Folder", "", options=options)
-        logging.info("Selected File:", self.file_path)
+        logging.info("Selected File: %s", self.file_path)
+
 
     @pyqtSlot()
     def transfer_data(self):

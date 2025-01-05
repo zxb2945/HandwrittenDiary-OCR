@@ -43,7 +43,8 @@ def baidu_ocr_handwriting(api_key, secret_key, image_path):
             print(word_info["words"])
             output2txt(word_info["words"])
     else:
-        print("OCR failed.")
+        error_msg = result.get("error_msg", "Unknown error")
+        print(f"OCR failed. Message: {error_msg}")
 
 
 def inputAllIMG2OCR(api_key, secret_key, folder_path):
@@ -58,7 +59,7 @@ def inputAllIMG2OCR(api_key, secret_key, folder_path):
         if os.path.isfile(file_path) and any(filename.lower().endswith(ext) for ext in image_extensions):
             # 处理图片文件，这里可以加入你的逻辑
             print("Found image file:", file_path) 
-            logging.info("Found image file:", file_path)
+            logging.info("Found image file:%s", file_path)
         baidu_ocr_handwriting(api_key, secret_key, file_path)  
 
     print("=====================") 
