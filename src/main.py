@@ -19,10 +19,13 @@ class Backend(QObject):
     showDialog = pyqtSignal()
     #1.file_path变化相关信号
     file_path_changed = pyqtSignal(str)
+    #2.log_text变化相关信号
+    log_text_changed = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
         self._file_path = ""
+        self._log_text = ""
 
     #@property
     @pyqtProperty(str)
@@ -34,6 +37,25 @@ class Backend(QObject):
         self._file_path = value
         #2.file_path一旦变化，发射信号给QML
         self.file_path_changed.emit(value)
+
+    @pyqtProperty(str)
+    def log_text(self):
+        return self._log_text
+
+    @log_text.setter
+    def log_text(self, value):
+        self._log_text = value
+        self.log_text_changed.emit(value)
+
+    def append_log(self, message):
+        """追加日志消息"""
+        self._log_text += message + "\n"
+        self.log_text_changed.emit(self._log_text)
+
+    def clear_log(self):
+        """清空日志"""
+        self._log_text = ""
+        self.log_text_changed.emit(self._log_text)
 
     #使用了 @pyqtSlot() 装饰器，因而可以在 QML 中作为槽函数连接到相应的信号。
     @pyqtSlot()
@@ -51,15 +73,19 @@ class Backend(QObject):
         # 在这里添加百度OCR接口的逻辑
         logging.info("Transfer Button Clicked")
 
+        # 清空日志
+        self.clear_log()
+
         #python天然支持返回多个值
-        api_key, secret_key = baiduOCR.inputConfig()    
+        api_key, secret_key = baiduOCR.inputConfig()
 
         if api_key == None or secret_key == None:
             #触发对话框pop
             self.showDialog.emit()
         else:
             logging.info(f"Call baidu ocr, {self.file_path}")
-            baiduOCR.inputAllIMG2OCR(api_key, secret_key, self.file_path)
+            self.append_log(f"开始处理文件夹: {self.file_path}")
+            baiduOCR.inputAllIMG2OCR(api_key, secret_key, self.file_path, self.append_log)
             #baiduOCR.baidu_ocr_handwriting(api_key, secret_key, self.file_path)
 
 #只需要在当前py文件中配置一次日志记录器，对当前文件所调用的其它py文件中同样有效

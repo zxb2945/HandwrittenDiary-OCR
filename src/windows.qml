@@ -6,10 +6,10 @@ import QtQuick.Window 2.15
 ApplicationWindow {
     id: root
     visible: true
-    width: 520
-    height: 360
-    minimumWidth: 420
-    minimumHeight: 320
+    width: 560
+    height: 520
+    minimumWidth: 460
+    minimumHeight: 420
     title: "手写日记 OCR"
     flags: Qt.FramelessWindowHint | Qt.Window
 
@@ -275,7 +275,61 @@ ApplicationWindow {
                 }
             }
 
-            Item { Layout.fillHeight: true }
+            // 日志输出区域
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.topMargin: 8
+                radius: 8
+                color: "#0a1525"
+                border.color: "#2a3a5a"
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 6
+
+                    // 日志标题
+                    Text {
+                        text: "📋 处理日志"
+                        color: "#6a8aaa"
+                        font.pixelSize: 12
+                        font.bold: true
+                    }
+
+                    // 日志内容
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+
+                        TextArea {
+                            id: logArea
+                            readOnly: true
+                            wrapMode: TextArea.Wrap
+                            color: "#a0d0a0"
+                            font.pixelSize: 12
+                            font.family: "Consolas, Microsoft YaHei"
+                            selectByMouse: true
+                            text: backend.log_text
+
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+
+                            Connections {
+                                target: backend
+                                onLog_text_changed: {
+                                    logArea.text = backend.log_text
+                                    // 自动滚动到底部
+                                    logArea.cursorPosition = logArea.length
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // 底部提示
             Text {

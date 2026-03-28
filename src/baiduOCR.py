@@ -3,7 +3,7 @@ import requests
 from base64 import b64encode
 import logging
 
-def baidu_ocr_handwriting(api_key, secret_key, image_path):
+def baidu_ocr_handwriting(api_key, secret_key, image_path, log_callback=None):
     # 获取访问令牌
     token_url = "https://aip.baidubce.com/oauth/2.0/token"
     token_params = {
@@ -17,7 +17,7 @@ def baidu_ocr_handwriting(api_key, secret_key, image_path):
 
     # 手写文字识别 API 接口地址
     ocr_url = "https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting"
-    
+
     # 读取图片文件
     with open(image_path, "rb") as f:
         image_data = b64encode(f.read()).decode("utf-8")
@@ -41,15 +41,23 @@ def baidu_ocr_handwriting(api_key, secret_key, image_path):
     if "words_result" in result:
         for word_info in result["words_result"]:
             print(word_info["words"])
+            if log_callback:
+                log_callback(f"  {word_info['words']}")
             output2txt(word_info["words"])
     else:
         error_msg = result.get("error_msg", "Unknown error")
         print(f"OCR failed. Message: {error_msg}")
+        if log_callback:
+            log_callback(f"  ❌ OCR 失败: {error_msg}")
 
 
-def inputAllIMG2OCR(api_key, secret_key, folder_path):
+def inputAllIMG2OCR(api_key, secret_key, folder_path, log_callback=None):
     # 定义图片文件的扩展名
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
+
+    # 统计处理数量
+    processed_count = 0
+    success_count = 0
 
     # 遍历文件夹下的所有文件
     for filename in os.listdir(folder_path):
@@ -58,16 +66,30 @@ def inputAllIMG2OCR(api_key, secret_key, folder_path):
         # 检查文件是否是图片文件
         if os.path.isfile(file_path) and any(filename.lower().endswith(ext) for ext in image_extensions):
             # 处理图片文件，这里可以加入你的逻辑
-            print("Found image file:", file_path) 
+            print("Found image file:", file_path)
             logging.info("Found image file:%s", file_path)
-        baidu_ocr_handwriting(api_key, secret_key, file_path)  
+            if log_callback:
+                log_callback(f"\n📄 处理图片: {filename}")
 
-    print("=====================") 
-    print("所有图片都处理完了！") 
-    print("=====================")    
+            processed_count += 1
+            try:
+                baidu_ocr_handwriting(api_key, secret_key, file_path, log_callback)
+                success_count += 1
+            except Exception as e:
+                if log_callback:
+                    log_callback(f"  ❌ 处理失败: {str(e)}")
+
+    print("=====================")
+    print("所有图片都处理完了！")
+    print("=====================")
     logging.info("=====================")
     logging.info("所有图片都处理完了！")
-    logging.info("=====================")   
+    logging.info("=====================")
+
+    if log_callback:
+        log_callback(f"\n{'='*30}")
+        log_callback(f"✅ 处理完成！共处理 {processed_count} 张图片，成功 {success_count} 张")
+        log_callback(f"{'='*30}")   
 
 def inputConfig():
     api_key = None
